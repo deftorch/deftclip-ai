@@ -45,7 +45,8 @@ Analisis transkrip video berikut dan identifikasi momen terbaik untuk dijadikan 
 ## KRITERIA PEMILIHAN KLIP
 Pilih momen yang memiliki:
 1. Hook yang kuat di 3 detik pertama (tipe: ${hookList})
-2. Emotional trigger yang relevan (target: ${emotionList})
+2. Emotional trigger yang relevan (target: ${emotionList}). 
+   *Jika file Audio disertakan, DENGARKAN INTONASI SUARANYA! Pilih momen di mana suara meninggi (semangat/marah), atau ada suara tawa yang kuat.*
 3. Standalone — bisa dipahami tanpa konteks sebelumnya
 4. Quotable — mengandung kalimat yang bisa dijadikan caption
 5. Virality score >= ${config.virality_threshold}

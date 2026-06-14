@@ -15,30 +15,30 @@ Dokumen ini merangkum peta jalan (*roadmap*) pengembangan **Fase 5** untuk siste
 ## 🗺️ Peta Jalan Implementasi (Phase 5)
 
 ### Tahap 1: Persiapan & Konfigurasi (Quick Wins)
-- [ ] **Update Config Schema**: 
+- [x] **Update Config Schema**: 
   - Edit `src/lib/schema/config.schema.ts` untuk menambahkan `gemini-3.5-flash` dan `gemini-3.1-pro` ke dalam opsi model.
   - Setel `gemini-3.5-flash` sebagai default baru di sistem UI.
-- [ ] **SDK Upgrade**: 
+- [x] **SDK Upgrade**: 
   - Pastikan Vercel AI SDK dan `@ai-sdk/google` berada pada versi terbaru yang sepenuhnya mendukung rilis Gemini Mei/Juni 2026.
   - Periksa *backward compatibility* pada `strategySchema` agar *Structured Outputs* JSON tetap absolut.
 
 ### Tahap 2: Context Caching untuk "User History"
 *Saat ini, kita melampirkan sejarah klip sukses ke dalam setiap prompt. Seiring bertambah besarnya history, ini akan mahal secara jumlah token.*
-- [ ] **Implementasi Cache API**:
+- [x] **Implementasi Cache API**:
   - Buat utilitas khusus di `src/lib/ai/caching.ts` untuk memanggil Gemini Cache API.
   - Kumpulkan instruksi sistem, penjabaran target *niche*, dan teks panjang dari *historyContext* (klip High Performer) menjadi satu objek *Cache*.
-- [ ] **Manajemen Lifecycle Cache**:
+- [x] **Manajemen Lifecycle Cache**:
   - Cache Gemini kedaluwarsa secara default. Buat logika untuk memperbarui (*refresh*) atau membuat ulang *cache* jika terdapat klip High Performer baru di *database*.
-- [ ] **Integrasi dengan Analyzer**:
+- [x] **Integrasi dengan Analyzer**:
   - Ubah `analyzeVideo` agar menggunakan ID Cache alih-alih melempar teks *prompt* statis dari nol pada setiap *request*.
 
 ### Tahap 3: Native Multimodal Pipeline (Menonton Video)
 *Meninggalkan keterbatasan teks. AI harus memahami gestur visual dan emosi vokal.*
-- [ ] **Ekstraksi Audio/Klip Kecil via FFmpeg Browser**:
+- [x] **Ekstraksi Audio/Klip Kecil via FFmpeg Browser**:
   - Modifikasi `ffmpeg-browser.ts` agar dapat mengekstrak audio `16kbps` (atau video `360p`) berdurasi panjang sebelum diunggah ke Vercel Blob / dikirim ke Gemini.
-- [ ] **Integrasi Google File API**:
-  - Jika video > 20 MB, gunakan *Google File API* (dari AI SDK) untuk mengunggah berkas multimedia sebelum memanggil `generateObject`.
-- [ ] **Update Prompt Multimodal**:
+- [x] **Integrasi Google File API**:
+  - Jika video > 20 MB, gunakan *Google File API* (dari AI SDK) untuk mengunggah berkas multimedia sebelum memanggil `generateObject`. *(Diimplementasikan menggunakan Buffer Base64 untuk file MP3 ultra-ringan)*
+- [x] **Update Prompt Multimodal**:
   - Ubah perintah di `prompt-builder.ts` agar menyertakan: *"Tonton video terlampir dan dengarkan intonasinya. Hanya pilih momen di mana subjek menunjukkan emosi 'marah' atau gestur tangan yang kuat."*
 
 ### Tahap 4: Agentic Features (Auto B-Roll & Smart Titles)

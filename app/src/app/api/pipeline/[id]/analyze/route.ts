@@ -17,11 +17,11 @@ export async function POST(
 
   try {
     const body = await request.json()
-    const { transcript } = body
+    const { transcript, audioBase64 } = body
 
-    if (!transcript || typeof transcript !== 'string') {
+    if ((!transcript || typeof transcript !== 'string') && !audioBase64) {
       return NextResponse.json(
-        { error: 'Field transcript wajib ada dan harus berupa string' },
+        { error: 'Field transcript atau audio wajib ada' },
         { status: 400 }
       )
     }
@@ -134,7 +134,7 @@ export async function POST(
           rotation_strategy: rotationStrategy as 'round_robin' | 'least_used' | 'random',
           cooldown_seconds: cooldownSeconds,
           max_retries: maxRetries,
-        }, historyContext)
+        }, historyContext, audioBase64)
 
         // Simpan strategy ke pipeline
         await db

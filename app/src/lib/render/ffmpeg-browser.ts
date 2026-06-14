@@ -23,6 +23,37 @@ export async function getFFmpeg(): Promise<FFmpeg> {
   return ffmpeg
 }
 
+/**
+ * Ekstrak audio dari video lokal (untuk keperluan Multimodal AI).
+ * Dikonversi ke MP3 16kbps agar sangat ringan (sekitar 1MB per 10 menit).
+ */
+export async function extractAudio(file: File, onProgress?: (progress: number) => void): Promise<Blob> {
+  const fg = await getFFmpeg()
+
+  const progressHandler = ({ progress }: { progress: number }) => {
+    if (onProgress) onProgress(progress * 100)
+  }
+  fg.on('progress', progressHandler)
+
+  const inputName = 'input_video' + file.name.substring(file.name.lastIndexOf('.'))
+  const outputName = 'output_audio.mp3'
+
+  await fg.writeFile(inputName, await fetchFile(file))
+
+  // Ekstrak audio saja (-vn) dengan bitrate rendah 16k
+  await fg.exec(['-i', inputName, '-vn', '-b:a', '16k', outputName])
+
+  fg.off('progress', progressHandler)
+
+  const outputData = await fg.readFile(outputName)
+  const outputBlob = new Blob([outputData as any], { type: 'audio/mp3' })
+
+  await fg.deleteFile(inputName)
+  await fg.deleteFile(outputName)
+
+  return outputBlob
+}
+
 export interface RenderPipelineOptions {
   startTime: number
   endTime: number

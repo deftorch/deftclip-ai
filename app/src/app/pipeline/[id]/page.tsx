@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useState, use } from 'react'
-import { ArrowLeft, Zap, Clock, CheckCircle, AlertCircle, Loader2, Download } from 'lucide-react'
+import { ArrowLeft, Zap, Clock, CheckCircle, AlertCircle, Loader2, Download, Upload, FileAudio } from 'lucide-react'
+import { extractAudio } from '@/lib/render/ffmpeg-browser'
 import Link from 'next/link'
 
 interface Clip {
@@ -283,16 +284,44 @@ export default function PipelinePage({ params }: { params: Promise<{ id: string 
 
 function StartAnalysisButton({ pipelineId, onStarted }: { pipelineId: string; onStarted: () => void }) {
   const [transcript, setTranscript] = useState('')
+  const [audioBase64, setAudioBase64] = useState('')
   const [loading, setLoading] = useState(false)
+  const [extracting, setExtracting] = useState(false)
+  const [progress, setProgress] = useState(0)
   const [show, setShow] = useState(false)
 
+  const handleVideoSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    try {
+      setExtracting(true)
+      const audioBlob = await extractAudio(file, setProgress)
+      
+      // Convert Blob to Base64
+      const reader = new FileReader()
+      reader.readAsDataURL(audioBlob)
+      reader.onloadend = () => {
+        const base64data = reader.result as string
+        // Format of readAsDataURL: data:audio/mp3;base64,.... We only need the base64 part for AI SDK
+        const base64Content = base64data.split(',')[1]
+        setAudioBase64(base64Content)
+        setExtracting(false)
+      }
+    } catch (err) {
+      console.error(err)
+      setExtracting(false)
+      alert("Gagal mengekstrak audio dari video lokal")
+    }
+  }
+
   const handleStart = async () => {
-    if (!transcript.trim()) return
+    if (!transcript.trim() && !audioBase64) return
     setLoading(true)
     await fetch(`/api/pipeline/${pipelineId}/analyze`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ transcript }),
+      body: JSON.stringify({ transcript, audioBase64 }),
     })
     setLoading(false)
     onStarted()
@@ -300,13 +329,35 @@ function StartAnalysisButton({ pipelineId, onStarted }: { pipelineId: string; on
 
   if (!show) return (
     <button id="start-analysis" onClick={() => setShow(true)} className="btn btn-primary">
-      <Zap size={14} /> Input Transkrip & Mulai Analisis
+      <Zap size={14} /> Input Transkrip / Video & Mulai Analisis
     </button>
   )
 
   return (
     <div style={{ textAlign: 'left', maxWidth: 560, margin: '0 auto' }}>
-      <label className="label">Paste Transkrip Video</label>
+      <div style={{ marginBottom: '1rem', padding: '1rem', background: 'rgba(56, 189, 248, 0.05)', border: '1px dashed var(--border)', borderRadius: 'var(--radius-md)' }}>
+        <label className="label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <Upload size={14} /> Ekstrak Audio untuk AI Multimodal (Opsional)
+        </label>
+        <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
+          Upload video lokal untuk mengekstrak audionya agar Gemini bisa "mendengar" intonasi emosi.
+        </p>
+        <input type="file" accept="video/*,audio/*" onChange={handleVideoSelect} disabled={extracting || loading} className="input" style={{ padding: '0.5rem' }} />
+        
+        {extracting && (
+          <div style={{ marginTop: '0.75rem', fontSize: '0.75rem', color: 'var(--accent)' }}>
+            ⚙️ Mengekstrak audio... {progress.toFixed(0)}%
+          </div>
+        )}
+        
+        {audioBase64 && !extracting && (
+          <div style={{ marginTop: '0.75rem', fontSize: '0.75rem', color: 'var(--success)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <FileAudio size={14} /> Audio berhasil disiapkan untuk Gemini!
+          </div>
+        )}
+      </div>
+
+      <label className="label">Paste Transkrip Video (Wajib untuk Akurasi Waktu)</label>
       <textarea
         id="transcript-input"
         className="input"
@@ -318,11 +369,11 @@ function StartAnalysisButton({ pipelineId, onStarted }: { pipelineId: string; on
       />
       <button
         onClick={handleStart}
-        disabled={loading || !transcript.trim()}
+        disabled={loading || extracting || (!transcript.trim() && !audioBase64)}
         className="btn btn-primary"
         style={{ marginTop: '0.75rem', width: '100%', justifyContent: 'center' }}
       >
-        {loading ? <><Loader2 size={14} className="animate-spin" />Menganalisis...</> : <><Zap size={14} />Mulai Analisis AI</>}
+        {loading ? <><Loader2 size={14} className="animate-spin" />Menganalisis...</> : <><Zap size={14} />{audioBase64 ? 'Mulai AI Agent (Multimodal)' : 'Mulai Analisis AI'}</>}
       </button>
     </div>
   )
