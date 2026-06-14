@@ -29,29 +29,29 @@
 
 > **Definisi selesai:** User bisa render klip yang di-approve menjadi file `.mp4` dengan caption.
 
-- [ ] Tulis unit tests FFmpeg wrapper (RED):
-  - [ ] Test fungsi potong video (`trimVideo`)
-  - [ ] Test burn-in caption (`burnCaption`)
-  - [ ] Test reframe ke 9:16 (`reframe`)
-  - [ ] Test color grade (`applyColorGrade`)
+- [x] Tulis unit tests FFmpeg wrapper (RED):
+  - [x] Test fungsi potong video (`trimVideo`)
+  - [x] Test burn-in caption (`burnCaption`)
+  - [x] Test reframe ke 9:16 (`reframe`)
+  - [x] Test color grade (`applyColorGrade`)
 
-- [ ] **Implementasi** `src/lib/render/ffmpeg-browser.ts`:
-  - [ ] Load FFmpeg.wasm dari CDN
-  - [ ] `trimVideo(inputUrl, startTime, endTime)` — potong sesuai `start_time/end_time`
-  - [ ] `burnCaption(text, position, style, fontSize, bgColor, textColor)` — burn-in dari `transcript_snippet`
-  - [ ] `reframe(aspectRatio)` — reframe ke 9:16 / 1:1 / 16:9
-  - [ ] `applyColorGrade(contrast, brightness, saturation)` — color grade dasar
+- [x] **Implementasi** `src/lib/render/ffmpeg-browser.ts`:
+  - [x] Load FFmpeg.wasm dari CDN
+  - [x] `trimVideo(inputUrl, startTime, endTime)` — potong sesuai `start_time/end_time`
+  - [x] `burnCaption(text, position, style, fontSize, bgColor, textColor)` — burn-in dari `transcript_snippet`
+  - [x] `reframe(aspectRatio)` — reframe ke 9:16 / 1:1 / 16:9
+  - [x] `applyColorGrade(contrast, brightness, saturation)` — color grade dasar
 
-- [ ] **UI** `src/app/pipeline/[id]/render/page.tsx`:
-  - [ ] Halaman render dengan list klip yang di-approve
-  - [ ] Progress bar per klip saat rendering
-  - [ ] Preview hasil render (video element)
-  - [ ] Tombol download `.mp4`
-  - [ ] Integrasi `RenderConfig` dari Settings
+- [x] **UI** `src/app/pipeline/[id]/render/page.tsx`:
+  - [x] Halaman render dengan list klip yang di-approve
+  - [x] Progress bar per klip saat rendering
+  - [x] Preview hasil render (video element)
+  - [x] Tombol download `.mp4`
+  - [x] Integrasi `RenderConfig` dari Settings
 
-- [ ] **API** `src/app/api/pipeline/[id]/render/route.ts`:
-  - [ ] Simpan output file URL ke kolom `output_file_url` di tabel `clips`
-  - [ ] Update `render_status` per klip
+- [x] **API** `src/app/api/clips/[id]/render-status/route.ts`:
+  - [x] Simpan output file URL ke kolom `output_file_url` di tabel `clips`
+  - [x] Update `render_status` per klip
 
 - [ ] Integration tests render pipeline (GREEN)
 - [ ] Update `CHANGELOG.md` saat selesai
