@@ -8,20 +8,20 @@
 
 ## 🔧 Fase 0 — Setup (Tersisa)
 
-- [ ] **0.2.1** Buat akun Neon di [neon.tech](https://neon.tech) dan isi `DATABASE_URL` + `DATABASE_URL_UNPOOLED` di `.env.local`
-- [ ] **0.2.5** Jalankan migrasi database pertama:
+- [x] **0.2.1** Buat akun Neon di [neon.tech](https://neon.tech) dan isi `DATABASE_URL` + `DATABASE_URL_UNPOOLED` di `.env.local`
+- [x] **0.2.5** Jalankan migrasi database pertama:
   ```bash
   npm run db:generate
   npm run db:migrate
   ```
-- [ ] **0.2.6** Verifikasi tabel `pipelines`, `clips`, `user_config` berhasil dibuat di Neon dashboard
+- [x] **0.2.6** Verifikasi tabel `pipelines`, `clips`, `user_config` berhasil dibuat di Neon dashboard
 - [ ] **0.1.3** Install Playwright dan browser:
   ```bash
   npm install -D @playwright/test
   npx playwright install chromium
   ```
 - [ ] **0.1.6** Tambah `playwright.config.ts`
-- [ ] Isi minimal 1 Gemini API key di `.env.local` (`GEMINI_KEY_01`)
+- [x] Isi minimal 1 Gemini API key di `.env.local` (`GEMINI_KEY_01`)
 
 ---
 
