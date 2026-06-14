@@ -8,8 +8,8 @@ import { hookTypeEnum, emotionEnum, nicheEnum, platformEnum } from './enums'
 export const analysisConfigSchema = z
   .object({
     model: z
-      .enum(['gemini-2.5-flash', 'gemini-2.5-pro'])
-      .default('gemini-2.5-flash'),
+      .enum(['gemini-3.5-flash', 'gemini-3.1-pro', 'gemini-2.5-flash', 'gemini-2.5-pro'])
+      .default('gemini-3.5-flash'),
     min_clips: z.number().min(1).max(5).default(3),
     max_clips: z.number().min(5).max(20).default(7),
     min_duration_seconds: z.number().min(7).max(30).default(15),

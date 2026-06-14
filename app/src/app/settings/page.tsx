@@ -31,7 +31,7 @@ interface KeyManagerConfig {
 }
 
 const DEFAULT_ANALYSIS: AnalysisConfig = {
-  model: 'gemini-2.5-flash', min_clips: 3, max_clips: 7,
+  model: 'gemini-3.5-flash', min_clips: 3, max_clips: 7,
   min_duration_seconds: 15, max_duration_seconds: 60,
   virality_threshold: 70, niche: 'motivation',
   source_language: 'id', thinking_depth: 'low', require_human_approval: true,
@@ -136,8 +136,14 @@ export default function SettingsPage() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <Field label="Model AI">
               <select id="settings-model" className="input" value={analysis.model} onChange={(e) => setA('model', e.target.value)}>
-                <option value="gemini-2.5-flash">gemini-2.5-flash (cepat)</option>
-                <option value="gemini-2.5-pro">gemini-2.5-pro (akurat)</option>
+                <optgroup label="Generasi 3 (Frontier - 2026)">
+                  <option value="gemini-3.5-flash">gemini-3.5-flash (tercepat & pintar, agentic)</option>
+                  <option value="gemini-3.1-pro">gemini-3.1-pro (paling akurat, 2M context)</option>
+                </optgroup>
+                <optgroup label="Generasi 2.5 (Stable)">
+                  <option value="gemini-2.5-flash">gemini-2.5-flash (klasik)</option>
+                  <option value="gemini-2.5-pro">gemini-2.5-pro (akurat lawas)</option>
+                </optgroup>
               </select>
             </Field>
             <Field label="Niche Konten">

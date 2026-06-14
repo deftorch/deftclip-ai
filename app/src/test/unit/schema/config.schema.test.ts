@@ -8,7 +8,7 @@ describe('analysisConfigSchema', () => {
 
   it('harus memiliki nilai default yang benar', () => {
     const config = analysisConfigSchema.parse({})
-    expect(config.model).toBe('gemini-2.5-flash')
+    expect(config.model).toBe('gemini-3.5-flash')
     expect(config.min_clips).toBe(3)
     expect(config.max_clips).toBe(7)
     expect(config.virality_threshold).toBe(70)
@@ -120,7 +120,7 @@ describe('renderConfigSchema', () => {
 describe('defaultConfigs', () => {
   it('defaultAnalysisConfig harus tersedia', () => {
     expect(defaultAnalysisConfig).toBeDefined()
-    expect(defaultAnalysisConfig.model).toBe('gemini-2.5-flash')
+    expect(defaultAnalysisConfig.model).toBe('gemini-3.5-flash')
   })
 
   it('defaultRenderConfig harus tersedia', () => {
