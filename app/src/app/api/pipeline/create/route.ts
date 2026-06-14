@@ -1,8 +1,5 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/db/client'
-import { pipelines } from '@/lib/db/schema'
 import { sourceSchema } from '@/lib/schema/source.schema'
-import { nanoid } from 'crypto'
 
 /**
  * POST /api/pipeline/create
@@ -27,13 +24,18 @@ export async function POST(request: Request) {
     const source = sourceResult.data
     const pipelineId = `pipeline_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`
 
-    await db.insert(pipelines).values({
-      id: pipelineId,
-      status: 'pending',
-      sourceUrl: source.url,
-      sourceType: source.type,
-      sourceTitle: source.episode_title,
-    })
+    // Gunakan dynamic import agar tidak error jika DATABASE_URL belum dikonfigurasi
+    if (process.env.DATABASE_URL) {
+      const { db } = await import('@/lib/db/client')
+      const { pipelines } = await import('@/lib/db/schema')
+      await db.insert(pipelines).values({
+        id: pipelineId,
+        status: 'pending',
+        sourceUrl: source.url,
+        sourceType: source.type,
+        sourceTitle: source.episode_title,
+      })
+    }
 
     return NextResponse.json({ pipelineId }, { status: 201 })
   } catch (error) {

@@ -66,7 +66,12 @@ export async function PUT(request: Request) {
       renderConfig: renderResult.data,
     }
 
-    // Upsert config
+    // Upsert config — dynamic import agar tidak error jika DB belum dikonfigurasi
+    if (!process.env.DATABASE_URL) {
+      return NextResponse.json({ success: true, note: 'DB not configured, config saved in-memory only' })
+    }
+    const { db } = await import('@/lib/db/client')
+    const { userConfig } = await import('@/lib/db/schema')
     await db
       .insert(userConfig)
       .values({ id: 'default', config: configData })

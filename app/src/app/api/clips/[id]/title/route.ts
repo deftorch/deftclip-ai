@@ -1,14 +1,5 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/db/client'
-import { clips } from '@/lib/db/schema'
-import { eq } from 'drizzle-orm'
 
-/**
- * PATCH /api/clips/[id]/title
- * Memperbarui judul klip (user override atas saran AI).
- *
- * Body: { title: string }
- */
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -21,20 +12,22 @@ export async function PATCH(
     return NextResponse.json({ error: 'Judul tidak boleh kosong' }, { status: 400 })
   }
 
-  const [existing] = await db
-    .select()
-    .from(clips)
-    .where(eq(clips.id, id))
-    .limit(1)
+  try {
+    const { db } = await import('@/lib/db/client')
+    const { clips } = await import('@/lib/db/schema')
+    const { eq } = await import('drizzle-orm')
 
-  if (!existing) {
-    return NextResponse.json({ error: 'Klip tidak ditemukan' }, { status: 404 })
+    const [existing] = await db.select().from(clips).where(eq(clips.id, id)).limit(1)
+
+    if (!existing) {
+      return NextResponse.json({ error: 'Klip tidak ditemukan' }, { status: 404 })
+    }
+
+    await db.update(clips).set({ userEditedTitle: title.trim() }).where(eq(clips.id, id))
+
+    return NextResponse.json({ success: true, clipId: id, title: title.trim() })
+  } catch (error) {
+    console.error('[PATCH /api/clips/title]', error)
+    return NextResponse.json({ error: 'Gagal mengupdate judul klip' }, { status: 500 })
   }
-
-  await db
-    .update(clips)
-    .set({ userEditedTitle: title.trim() })
-    .where(eq(clips.id, id))
-
-  return NextResponse.json({ success: true, clipId: id, title: title.trim() })
 }

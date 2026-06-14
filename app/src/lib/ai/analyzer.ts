@@ -54,7 +54,7 @@ export async function analyzeVideo(
             content: `${prompt}\n\n## TRANSKRIP VIDEO\n${transcript}`,
           },
         ],
-        maxTokens: 4096,
+        maxOutputTokens: 4096,
       })
 
       // Parse JSON dari response AI
@@ -72,8 +72,8 @@ export async function analyzeVideo(
           model: config.model,
           apiKeyIndex: availableKey.index,
           apiKeyLabel: availableKey.label,
-          tokenUsageInput: usage?.promptTokens ?? 0,
-          tokenUsageOutput: usage?.completionTokens ?? 0,
+          tokenUsageInput: usage?.inputTokens ?? 0,
+          tokenUsageOutput: usage?.outputTokens ?? 0,
           durationMs: Date.now() - startTime,
         },
       }

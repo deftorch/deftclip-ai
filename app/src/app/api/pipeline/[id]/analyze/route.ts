@@ -1,7 +1,4 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/db/client'
-import { pipelines, clips, userConfig } from '@/lib/db/schema'
-import { eq } from 'drizzle-orm'
 import { analyzeVideo } from '@/lib/ai/analyzer'
 import { analysisConfigSchema, defaultAnalysisConfig } from '@/lib/schema/config.schema'
 
@@ -28,6 +25,14 @@ export async function POST(
         { status: 400 }
       )
     }
+
+    if (!process.env.DATABASE_URL) {
+      return NextResponse.json({ error: 'Database belum dikonfigurasi' }, { status: 500 })
+    }
+
+    const { db } = await import('@/lib/db/client')
+    const { pipelines, clips, userConfig } = await import('@/lib/db/schema')
+    const { eq } = await import('drizzle-orm')
 
     // Ambil pipeline dari database
     const [pipeline] = await db
@@ -93,7 +98,6 @@ export async function POST(
     }
 
     // Jalankan analisis (async — respond 202 dulu, proses di background)
-    // Untuk produksi: gunakan Vercel Background Functions atau queue
     const analyzeAsync = async () => {
       try {
         const result = await analyzeVideo(transcript, config, {
@@ -176,20 +180,33 @@ export async function GET(
 ) {
   const { id } = await params
 
-  const [pipeline] = await db
-    .select()
-    .from(pipelines)
-    .where(eq(pipelines.id, id))
-    .limit(1)
-
-  if (!pipeline) {
-    return NextResponse.json({ error: 'Pipeline tidak ditemukan' }, { status: 404 })
+  if (!process.env.DATABASE_URL) {
+    return NextResponse.json({ error: 'Database belum dikonfigurasi' }, { status: 500 })
   }
 
-  const pipelineClips = await db
-    .select()
-    .from(clips)
-    .where(eq(clips.pipelineId, id))
+  try {
+    const { db } = await import('@/lib/db/client')
+    const { pipelines, clips } = await import('@/lib/db/schema')
+    const { eq } = await import('drizzle-orm')
 
-  return NextResponse.json({ pipeline, clips: pipelineClips })
+    const [pipeline] = await db
+      .select()
+      .from(pipelines)
+      .where(eq(pipelines.id, id))
+      .limit(1)
+
+    if (!pipeline) {
+      return NextResponse.json({ error: 'Pipeline tidak ditemukan' }, { status: 404 })
+    }
+
+    const pipelineClips = await db
+      .select()
+      .from(clips)
+      .where(eq(clips.pipelineId, id))
+
+    return NextResponse.json({ pipeline, clips: pipelineClips })
+  } catch (error) {
+    console.error(`[GET /api/pipeline/${id}/analyze]`, error)
+    return NextResponse.json({ error: 'Gagal mengambil data pipeline' }, { status: 500 })
+  }
 }
