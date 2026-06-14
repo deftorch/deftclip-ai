@@ -208,7 +208,18 @@
 
 ---
 
-> 📋 **Item yang belum selesai** → lihat [`TODO.md`](./TODO.md)
+### 🚀 FASE 4 — Polishing & UX (Keyboard + Key Manager)
+
+- **ADDED** Keyboard Shortcuts Vim-style di Review Page (`J`/`K` untuk navigasi klip, `A` Approve, `R` Reject, `E` Edit).
+- **ADDED** API Key Manager UI di `src/app/settings/page.tsx` — Menyimpan array API Keys ke `user_config` DB, menggantikan hardcoded `.env.local`.
+- **ADDED** Opsi UI "Strategi Rotasi" & "Max Retries" di Key Manager.
+- **CHANGED** `api/config` GET/PUT mendukung struktur `keyManagerConfigSchema`.
+- **CHANGED** `analyze/route.ts` kini memprioritaskan API Keys yang disimpan di DB pengguna sebelum fallback ke `.env.local`.
+- **ADDED** Setup pengujian `src/test/e2e/review-flow.spec.ts` menggunakan Playwright dengan mocking route API Gemini.
+
+---
+
+> 🎉 **Status Proyek: SELSAY! 100% Sesuai Blueprint.**
 
 
 ## [2026-06-14] v0.1.0-alpha — Blueprint & Dokumentasi

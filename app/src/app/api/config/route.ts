@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server'
-import { analysisConfigSchema, renderConfigSchema } from '@/lib/schema/config.schema'
+import { analysisConfigSchema, renderConfigSchema, keyManagerConfigSchema } from '@/lib/schema/config.schema'
 
 const defaults = {
   analysisConfig: analysisConfigSchema.parse({}),
   renderConfig: renderConfigSchema.parse({}),
+  keyManagerConfig: keyManagerConfigSchema.parse({}),
 }
 
 /**
@@ -47,6 +48,10 @@ export async function PUT(request: Request) {
       ? renderConfigSchema.safeParse(body.renderConfig)
       : { success: true, data: renderConfigSchema.parse({}) }
 
+    const keyManagerResult = body.keyManagerConfig
+      ? keyManagerConfigSchema.safeParse(body.keyManagerConfig)
+      : { success: true, data: keyManagerConfigSchema.parse({}) }
+
     if (!analysisResult.success) {
       return NextResponse.json(
         { error: 'Konfigurasi analisis tidak valid', details: (analysisResult as any).error?.flatten() },
@@ -61,9 +66,17 @@ export async function PUT(request: Request) {
       )
     }
 
+    if (!keyManagerResult.success) {
+      return NextResponse.json(
+        { error: 'Konfigurasi Key Manager tidak valid', details: (keyManagerResult as any).error?.flatten() },
+        { status: 400 }
+      )
+    }
+
     const configData = {
       analysisConfig: analysisResult.data,
       renderConfig: renderResult.data,
+      keyManagerConfig: keyManagerResult.data,
     }
 
     // Upsert config — dynamic import agar tidak error jika DB belum dikonfigurasi

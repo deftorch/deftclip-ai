@@ -68,6 +68,7 @@ export default function PipelinePage({ params }: { params: Promise<{ id: string 
   const [pipeline, setPipeline] = useState<Pipeline | null>(null)
   const [clips, setClips] = useState<Clip[]>([])
   const [loading, setLoading] = useState(true)
+  const [focusedIndex, setFocusedIndex] = useState(-1)
 
   const fetchData = async () => {
     try {
@@ -90,6 +91,37 @@ export default function PipelinePage({ params }: { params: Promise<{ id: string 
     }, 3000)
     return () => clearInterval(interval)
   }, [id, pipeline?.status])
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
+
+      if (e.key.toLowerCase() === 'j') {
+        setFocusedIndex(prev => {
+          const next = Math.min(prev + 1, clips.length - 1)
+          document.getElementById(`clip-${clips[next]?.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          return next
+        })
+      } else if (e.key.toLowerCase() === 'k') {
+        setFocusedIndex(prev => {
+          const next = Math.max(prev - 1, 0)
+          document.getElementById(`clip-${clips[next]?.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          return next
+        })
+      } else if (focusedIndex >= 0 && focusedIndex < clips.length) {
+        const clip = clips[focusedIndex]
+        if (e.key.toLowerCase() === 'a') {
+          handleApprove(clip.id)
+        } else if (e.key.toLowerCase() === 'r') {
+          handleReject(clip.id)
+        } else if (e.key.toLowerCase() === 'e') {
+          handleEditTitle(clip.id, clip.userEditedTitle || clip.aiSuggestedTitle || '')
+        }
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [clips, focusedIndex])
 
   const handleApprove = async (clipId: string) => {
     await fetch(`/api/clips/${clipId}/approve`, { method: 'POST' })
@@ -220,14 +252,16 @@ export default function PipelinePage({ params }: { params: Promise<{ id: string 
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               {clips.map((clip, i) => (
-                <ClipCard
-                  key={clip.id}
-                  clip={clip}
-                  index={i + 1}
-                  onApprove={() => handleApprove(clip.id)}
-                  onReject={() => handleReject(clip.id)}
-                  onEdit={() => handleEditTitle(clip.id, clip.userEditedTitle || clip.aiSuggestedTitle || '')}
-                />
+                <div id={`clip-${clip.id}`} key={clip.id}>
+                  <ClipCard
+                    clip={clip}
+                    index={i + 1}
+                    isFocused={i === focusedIndex}
+                    onApprove={() => handleApprove(clip.id)}
+                    onReject={() => handleReject(clip.id)}
+                    onEdit={() => handleEditTitle(clip.id, clip.userEditedTitle || clip.aiSuggestedTitle || '')}
+                  />
+                </div>
               ))}
             </div>
           </>
@@ -294,8 +328,8 @@ function StartAnalysisButton({ pipelineId, onStarted }: { pipelineId: string; on
   )
 }
 
-function ClipCard({ clip, index, onApprove, onReject, onEdit }: {
-  clip: Clip; index: number
+function ClipCard({ clip, index, isFocused, onApprove, onReject, onEdit }: {
+  clip: Clip; index: number; isFocused: boolean
   onApprove: () => void; onReject: () => void; onEdit: () => void
 }) {
   const score = clip.viralityScore
@@ -307,8 +341,10 @@ function ClipCard({ clip, index, onApprove, onReject, onEdit }: {
     <div
       className="card animate-fade-in"
       style={{
-        borderColor: status === 'approved' ? 'var(--success)' : status === 'rejected' ? 'var(--danger)' : 'var(--border-subtle)',
+        borderColor: status === 'approved' ? 'var(--success)' : status === 'rejected' ? 'var(--danger)' : isFocused ? 'var(--accent)' : 'var(--border-subtle)',
+        boxShadow: isFocused ? '0 0 0 2px var(--accent)' : 'none',
         opacity: status === 'rejected' ? 0.6 : 1,
+        transition: 'all 0.2s',
       }}
     >
       {/* Clip header */}

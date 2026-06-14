@@ -74,15 +74,24 @@ export async function POST(
       .set({ status: 'analyzing', updatedAt: new Date() })
       .where(eq(pipelines.id, id))
 
-    // Bangun key manager options dari env
+    // Ambil Key Manager Config dari DB
+    const [userCfgData] = await db.select().from(userConfig).where(eq(userConfig.id, 'default')).limit(1)
+    const keyManagerConfig = userCfgData?.config?.keyManagerConfig
+
+    // Bangun key manager options dari env sebagai fallback
     const envKeys = Array.from({ length: 12 }, (_, i) => {
       const keyValue = process.env[`GEMINI_KEY_${String(i + 1).padStart(2, '0')}`]
       return keyValue
-        ? { key: keyValue, label: `Key ${i + 1}`, enabled: true }
+        ? { key: keyValue, label: `Env Key ${i + 1}`, enabled: true }
         : null
     }).filter(Boolean) as { key: string; label: string; enabled: boolean }[]
 
-    if (envKeys.length === 0) {
+    // Gunakan keys dari DB jika ada, jika tidak fallback ke env
+    const activeKeys = (keyManagerConfig?.api_keys && keyManagerConfig.api_keys.length > 0)
+      ? keyManagerConfig.api_keys
+      : envKeys
+
+    if (activeKeys.length === 0) {
       await db
         .update(pipelines)
         .set({
@@ -96,6 +105,10 @@ export async function POST(
         { status: 503 }
       )
     }
+
+    const rotationStrategy = keyManagerConfig?.rotation_strategy || 'round_robin'
+    const cooldownSeconds = keyManagerConfig?.cooldown_seconds || 60
+    const maxRetries = keyManagerConfig?.max_retries || activeKeys.length
 
     // Jalankan analisis (async — respond 202 dulu, proses di background)
     const analyzeAsync = async () => {
@@ -117,10 +130,10 @@ export async function POST(
         }
 
         const result = await analyzeVideo(transcript, config, {
-          keys: envKeys,
-          rotation_strategy: 'round_robin',
-          cooldown_seconds: 60,
-          max_retries: envKeys.length,
+          keys: activeKeys,
+          rotation_strategy: rotationStrategy as 'round_robin' | 'least_used' | 'random',
+          cooldown_seconds: cooldownSeconds,
+          max_retries: maxRetries,
         }, historyContext)
 
         // Simpan strategy ke pipeline

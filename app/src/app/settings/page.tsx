@@ -23,6 +23,13 @@ interface RenderConfig {
   contrast: number; brightness: number; saturation: number
 }
 
+interface KeyManagerConfig {
+  api_keys: { key: string; label: string; enabled: boolean }[]
+  rotation_strategy: string
+  cooldown_seconds: number
+  max_retries: number
+}
+
 const DEFAULT_ANALYSIS: AnalysisConfig = {
   model: 'gemini-2.5-flash', min_clips: 3, max_clips: 7,
   min_duration_seconds: 15, max_duration_seconds: 60,
@@ -36,10 +43,17 @@ const DEFAULT_RENDER: RenderConfig = {
   caption_bg_color: '#000000', caption_text_color: '#FFFFFF',
   contrast: 10, brightness: 0, saturation: 12,
 }
+const DEFAULT_KEY_MANAGER: KeyManagerConfig = {
+  api_keys: [],
+  rotation_strategy: 'round_robin',
+  cooldown_seconds: 60,
+  max_retries: 3,
+}
 
 export default function SettingsPage() {
   const [analysis, setAnalysis] = useState<AnalysisConfig>(DEFAULT_ANALYSIS)
   const [render, setRender] = useState<RenderConfig>(DEFAULT_RENDER)
+  const [keyManager, setKeyManager] = useState<KeyManagerConfig>(DEFAULT_KEY_MANAGER)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -48,6 +62,7 @@ export default function SettingsPage() {
     fetch('/api/config').then((r) => r.json()).then((data) => {
       if (data.analysisConfig) setAnalysis({ ...DEFAULT_ANALYSIS, ...data.analysisConfig })
       if (data.renderConfig) setRender({ ...DEFAULT_RENDER, ...data.renderConfig })
+      if (data.keyManagerConfig) setKeyManager({ ...DEFAULT_KEY_MANAGER, ...data.keyManagerConfig })
     }).finally(() => setLoading(false))
   }, [])
 
@@ -56,7 +71,7 @@ export default function SettingsPage() {
     await fetch('/api/config', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ analysisConfig: analysis, renderConfig: render }),
+      body: JSON.stringify({ analysisConfig: analysis, renderConfig: render, keyManagerConfig: keyManager }),
     })
     setSaving(false); setSaved(true)
     setTimeout(() => setSaved(false), 2000)
@@ -64,6 +79,7 @@ export default function SettingsPage() {
 
   const setA = (key: keyof AnalysisConfig, val: unknown) => setAnalysis((p) => ({ ...p, [key]: val }))
   const setR = (key: keyof RenderConfig, val: unknown) => setRender((p) => ({ ...p, [key]: val }))
+  const setK = (key: keyof KeyManagerConfig, val: unknown) => setKeyManager((p) => ({ ...p, [key]: val }))
 
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', color: 'var(--text-muted)' }}>
@@ -230,6 +246,65 @@ export default function SettingsPage() {
                 </div>
               </Field>
             </div>
+          </div>
+        </section>
+
+        {/* Key Manager Config */}
+        <section className="card">
+          <div style={{ fontWeight: 700, marginBottom: '1.5rem', fontSize: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>🔑 API Key Manager</span>
+            <button 
+              className="btn btn-ghost btn-sm"
+              onClick={() => setKeyManager(p => ({ ...p, api_keys: [...p.api_keys, { key: '', label: `Key ${p.api_keys.length + 1}`, enabled: true }] }))}
+            >
+              + Tambah Key
+            </button>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+            <Field label="Strategi Rotasi">
+              <select className="input" value={keyManager.rotation_strategy} onChange={(e) => setK('rotation_strategy', e.target.value)}>
+                <option value="round_robin">Round Robin (Bergiliran)</option>
+                <option value="least_used">Least Used (Paling jarang dipakai)</option>
+                <option value="random">Random (Acak)</option>
+              </select>
+            </Field>
+            <Field label="Max Retries (Jika limit)">
+              <input type="number" className="input" value={keyManager.max_retries} onChange={(e) => setK('max_retries', +e.target.value)} min={1} max={20} />
+            </Field>
+          </div>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {keyManager.api_keys.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '1rem', color: 'var(--text-muted)' }}>Belum ada API key tersimpan. Menggunakan key dari file env lokal.</div>
+            ) : (
+              keyManager.api_keys.map((ak, i) => (
+                <div key={i} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', background: 'var(--bg-elevated)', padding: '0.5rem', borderRadius: 'var(--radius-md)' }}>
+                  <input type="checkbox" checked={ak.enabled} onChange={(e) => {
+                    const newKeys = [...keyManager.api_keys]
+                    newKeys[i].enabled = e.target.checked
+                    setK('api_keys', newKeys)
+                  }} style={{ accentColor: 'var(--accent)', width: 16, height: 16 }} />
+                  
+                  <input className="input" placeholder="Label (mis. Akun 1)" value={ak.label} onChange={(e) => {
+                    const newKeys = [...keyManager.api_keys]
+                    newKeys[i].label = e.target.value
+                    setK('api_keys', newKeys)
+                  }} style={{ width: 120, height: 32 }} />
+
+                  <input className="input" type="password" placeholder="AIzaSy..." value={ak.key} onChange={(e) => {
+                    const newKeys = [...keyManager.api_keys]
+                    newKeys[i].key = e.target.value
+                    setK('api_keys', newKeys)
+                  }} style={{ flex: 1, height: 32, fontFamily: 'monospace' }} />
+
+                  <button className="btn btn-ghost btn-sm" onClick={() => {
+                    const newKeys = [...keyManager.api_keys]
+                    newKeys.splice(i, 1)
+                    setK('api_keys', newKeys)
+                  }} style={{ color: 'var(--danger)' }}>Hapus</button>
+                </div>
+              ))
+            )}
           </div>
         </section>
       </main>

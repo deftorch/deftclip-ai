@@ -90,38 +90,38 @@
 
 ## 🔐 Fase 4 — Key Manager UI (tersisa dari Blueprint)
 
-- [ ] **UI** `src/components/config/KeyManager.tsx`:
-  - [ ] Tambah API key baru (masked input)
-  - [ ] Hapus / disable key
-  - [ ] Label per key (mis. "Akun Gmail 1")
-  - [ ] Lihat status real-time (aktif / cooldown countdown / disabled)
-  - [ ] Pilih strategi rotasi dari UI
+- [x] **UI** `src/components/config/KeyManager.tsx`:
+  - [x] Tambah API key baru (masked input)
+  - [x] Hapus / disable key
+  - [x] Label per key (mis. "Akun Gmail 1")
+  - [x] Lihat status real-time (aktif / cooldown countdown / disabled)
+  - [x] Pilih strategi rotasi dari UI
 
-- [ ] Simpan daftar key ke database (encrypted) — saat ini hanya dari env
+- [x] Simpan daftar key ke database (encrypted) — saat ini hanya dari env
 
 ---
 
 ## 🧪 E2E Tests (Playwright)
 
-- [ ] `e2e/review-flow.spec.ts`:
-  - [ ] User bisa submit URL dan memulai analisis
-  - [ ] Status pipeline terupdate real-time
-  - [ ] Klip hasil analisis tampil sebagai kartu
-  - [ ] Setiap kartu menampilkan transparency panel
-  - [ ] User bisa approve klip (`A`)
-  - [ ] User bisa reject klip (`R`)
-  - [ ] User bisa edit judul saran AI (`E`)
-  - [ ] Hanya klip yang approved yang masuk ke render
+- [x] `e2e/review-flow.spec.ts`:
+  - [x] User bisa submit URL dan memulai analisis
+  - [x] Status pipeline terupdate real-time
+  - [x] Klip hasil analisis tampil sebagai kartu
+  - [x] Setiap kartu menampilkan transparency panel
+  - [x] User bisa approve klip (`A`)
+  - [x] User bisa reject klip (`R`)
+  - [x] User bisa edit judul saran AI (`E`)
+  - [x] Hanya klip yang approved yang masuk ke render
 
 ---
 
 ## ⌨️ Keyboard Shortcuts
 
-- [ ] Implementasi keyboard handler di `pipeline/[id]/page.tsx`:
-  - `A` → Approve klip yang sedang fokus
-  - `R` → Reject klip yang sedang fokus
-  - `E` → Edit judul klip yang sedang fokus
-  - `J/K` → Navigasi antar klip (vim-style)
+- [x] Implementasi keyboard handler di `pipeline/[id]/page.tsx`:
+  - [x] `A` → Approve klip yang sedang fokus
+  - [x] `R` → Reject klip yang sedang fokus
+  - [x] `E` → Edit judul klip yang sedang fokus
+  - [x] `J/K` → Navigasi antar klip (vim-style)
 
 ---
 
