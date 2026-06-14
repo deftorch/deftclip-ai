@@ -76,6 +76,7 @@ Kembalikan HANYA JSON valid berikut, tanpa teks tambahan:
       "ai_suggested_title": "<judul menarik max 100 karakter>",
       "ai_reasoning": "<penjelasan dalam Bahasa Indonesia kenapa momen ini dipilih, 2-3 kalimat>",
       "human_approved": false,
+      "b_roll_url": "<opsional: URL B-Roll jika kamu menggunakan tool search_broll_footage>",
       "score_breakdown": {
         "hook_strength": <0-10>,
         "emotional_impact": <0-10>,
@@ -92,5 +93,6 @@ PENTING:
 - Urutkan dari virality_score tertinggi
 - Maksimal ${config.max_clips} klip
 - ai_reasoning HARUS dalam Bahasa Indonesia
-- Jangan sertakan klip dengan durasi di luar ${config.min_duration_seconds}-${config.max_duration_seconds} detik`
+- Jangan sertakan klip dengan durasi di luar ${config.min_duration_seconds}-${config.max_duration_seconds} detik
+- Jika konteks klip membutuhkan visual tambahan, panggil tool \`search_broll_footage\` dan masukkan URL hasilnya ke properti \`b_roll_url\`.`
 }

@@ -79,7 +79,8 @@ export default function RenderPage({ params }: { params: Promise<{ id: string }>
           contrast: config.contrast || 0,
           brightness: config.brightness || 0,
           saturation: config.saturation || 0,
-        }
+        },
+        bRollUrl: clip.bRollUrl,
       }
 
       const outputBlob = await renderClip(sourceFile, options, (prog) => {

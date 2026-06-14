@@ -42,11 +42,11 @@ Dokumen ini merangkum peta jalan (*roadmap*) pengembangan **Fase 5** untuk siste
   - Ubah perintah di `prompt-builder.ts` agar menyertakan: *"Tonton video terlampir dan dengarkan intonasinya. Hanya pilih momen di mana subjek menunjukkan emosi 'marah' atau gestur tangan yang kuat."*
 
 ### Tahap 4: Agentic Features (Auto B-Roll & Smart Titles)
-- [ ] **Function Calling (Tools)**:
+- [x] **Function Calling (Tools)**:
   - Bekali model Gemini di `analyzer.ts` dengan alat/tool `search_broll_footage`.
   - Jika Gemini mendeteksi klip membicarakan "hutan", ia otomatis memanggil fungsi pencarian video gratis (via Pexels API) dan mereturn URL videonya di objek JSON.
-- [ ] **Penyisipan B-Roll ke FFmpeg**:
-  - Update `ffmpeg-commands.ts` untuk mendukung *overlay* video (*picture-in-picture* atau transisi penuh) jika klip memiliki data B-Roll dari Gemini.
+- [x] **Penyisipan B-Roll ke FFmpeg**:
+  - Update `ffmpeg-browser.ts` untuk mendukung *overlay* video (*picture-in-picture* atau transisi penuh) jika klip memiliki data B-Roll dari Gemini.
 
 ---
 

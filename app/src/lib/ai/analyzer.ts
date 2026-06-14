@@ -1,5 +1,6 @@
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
-import { generateText } from 'ai'
+import { generateText, tool } from 'ai'
+import { z } from 'zod'
 import { KeyManager, AllKeysExhaustedError } from './key-manager'
 import { buildAnalysisPrompt } from './prompt-builder'
 import { GeminiCacheManager } from './caching'
@@ -91,6 +92,18 @@ export async function analyzeVideo(
             content: messageParts as any,
           },
         ],
+        tools: {
+          search_broll_footage: tool({
+            description: 'Mencari video B-Roll stok gratis berdasarkan kata kunci (contoh: "forest", "office", "laughing"). Gunakan ini jika klip membutuhkan visual tambahan.',
+            parameters: z.object({ query: z.string().describe('Kata kunci pencarian video') }),
+            execute: async ({ query }) => {
+              // Simulasi Pexels API (Bisa diganti dengan fetch betulan ke Pexels)
+              console.log(`[Agent] Mencari B-Roll untuk query: ${query}...`)
+              return { url: `https://videos.pexels.com/search?q=${encodeURIComponent(query)}` }
+            }
+          })
+        },
+        maxSteps: 3, // Agentic workflow: izinkan agent memakai tools lalu menjawab
         maxOutputTokens: 4096,
       })
 

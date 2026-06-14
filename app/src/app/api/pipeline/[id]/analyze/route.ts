@@ -167,6 +167,7 @@ export async function POST(
             transcriptSnippet: clip.transcript_snippet,
             aiSuggestedTitle: clip.ai_suggested_title,
             aiReasoning: clip.ai_reasoning,
+            bRollUrl: clip.b_roll_url,
             scoreBreakdown: clip.score_breakdown,
           })
         }

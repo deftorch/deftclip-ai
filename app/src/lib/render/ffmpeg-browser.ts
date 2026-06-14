@@ -58,6 +58,7 @@ export interface RenderPipelineOptions {
   startTime: number
   endTime: number
   aspectRatio: string
+  bRollUrl?: string
   captionText?: string
   captionOptions?: {
     fontSize: number
@@ -144,16 +145,44 @@ export async function renderClip(
   // Build commands
   const args = [
     '-ss', String(options.startTime),
-    '-i', inputName,
     '-t', String(duration),
+    '-i', inputName,
   ]
 
-  if (vfArg) {
-    args.push('-vf', vfArg)
+  if (options.bRollUrl) {
+    const brollName = 'broll.mp4'
+    const brollData = await fetchFile(options.bRollUrl)
+    await fg.writeFile(brollName, brollData)
+    // Add second input (B-Roll)
+    args.push('-stream_loop', '-1', '-i', brollName)
+    
+    // Kompleks filter: Gunakan B-Roll sebagai video, skalakan, crop sesuai aspect ratio
+    let brollFilter = ''
+    if (options.aspectRatio === '9:16') {
+      brollFilter = '[1:v]scale=-1:ih,crop=ih*9/16:ih[brollv];'
+    } else if (options.aspectRatio === '1:1') {
+      brollFilter = '[1:v]scale=-1:ih,crop=ih:ih[brollv];'
+    } else {
+      brollFilter = '[1:v]copy[brollv];'
+    }
+    
+    // Gabungkan filter teks/color ke brollv jika ada
+    if (filters.length > 0) {
+      brollFilter += `[brollv]${filters.join(',')}[outv]`
+    } else {
+      brollFilter += `[brollv]null[outv]` // dummy
+    }
+
+    args.push('-filter_complex', brollFilter)
+    args.push('-map', '[outv]', '-map', '0:a') // Audio dari video asli
+  } else {
+    if (vfArg) {
+      args.push('-vf', vfArg)
+    }
   }
 
   // Gunakan preset superfast, libx264
-  args.push('-c:v', 'libx264', '-preset', 'superfast', '-c:a', 'copy', outputName)
+  args.push('-c:v', 'libx264', '-preset', 'superfast', '-c:a', 'aac', '-shortest', outputName)
 
   // Execute!
   await fg.exec(args)

@@ -22,6 +22,7 @@ export const clipSchema = z.object({
   ai_suggested_title: z.string().max(100).optional(),
   ai_reasoning: z.string().optional(),
   human_approved: z.boolean().default(false),
+  b_roll_url: z.string().url().optional(),
   // Score breakdown per dimensi (0-10)
   score_breakdown: z
     .object({

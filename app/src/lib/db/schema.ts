@@ -61,6 +61,9 @@ export const clips = pgTable('clips', {
   userEditedTitle: text('user_edited_title'),
   reviewedAt: timestamp('reviewed_at'),
 
+  // B-Roll
+  bRollUrl: text('b_roll_url'),
+
   // Render result
   renderStatus: text('render_status'), // 'pending' | 'rendering' | 'done' | 'error'
   outputFileUrl: text('output_file_url'),
