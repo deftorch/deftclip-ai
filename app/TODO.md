@@ -15,12 +15,12 @@
   npm run db:migrate
   ```
 - [x] **0.2.6** Verifikasi tabel `pipelines`, `clips`, `user_config` berhasil dibuat di Neon dashboard
-- [ ] **0.1.3** Install Playwright dan browser:
+- [x] **0.1.3** Install Playwright dan browser:
   ```bash
   npm install -D @playwright/test
   npx playwright install chromium
   ```
-- [ ] **0.1.6** Tambah `playwright.config.ts`
+- [x] **0.1.6** Tambah `playwright.config.ts`
 - [x] Isi minimal 1 Gemini API key di `.env.local` (`GEMINI_KEY_01`)
 
 ---
