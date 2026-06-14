@@ -28,10 +28,11 @@ export interface AnalyzerResult {
 export async function analyzeVideo(
   transcript: string,
   config: AnalysisConfig,
-  keyManagerOptions: KeyManagerOptions
+  keyManagerOptions: KeyManagerOptions,
+  historyContext?: string
 ): Promise<AnalyzerResult> {
   const keyManager = new KeyManager(keyManagerOptions)
-  const prompt = buildAnalysisPrompt(config)
+  const prompt = buildAnalysisPrompt(config, historyContext)
   const startTime = Date.now()
 
   let lastError: Error | null = null

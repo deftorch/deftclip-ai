@@ -24,6 +24,11 @@ interface Clip {
     quotability: number
     optimal_duration: number
   }
+  renderStatus?: string
+  viewCount?: number
+  likeCount?: number
+  engagementRate?: string
+  isHighPerformer?: boolean
 }
 
 interface Pipeline {
@@ -403,6 +408,90 @@ function ClipCard({ clip, index, onApprove, onReject, onEdit }: {
           <button onClick={onApprove} className="btn btn-ghost btn-sm" style={{ fontSize: '0.75rem' }}>Batalkan</button>
         </div>
       )}
+
+      {/* Analytics Input (Fase 3) - Show only if rendered */}
+      {clip.renderStatus === 'done' && (
+        <ClipAnalytics clip={clip} />
+      )}
+    </div>
+  )
+}
+
+function ClipAnalytics({ clip }: { clip: Clip }) {
+  const [views, setViews] = useState(clip.viewCount?.toString() || '0')
+  const [likes, setLikes] = useState(clip.likeCount?.toString() || '0')
+  const [loading, setLoading] = useState(false)
+  const [stats, setStats] = useState({
+    engagementRate: clip.engagementRate || '0',
+    isHighPerformer: clip.isHighPerformer || false
+  })
+
+  const handleUpdateAnalytics = async () => {
+    setLoading(true)
+    try {
+      const res = await fetch(`/api/clips/${clip.id}/analytics`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          viewCount: parseInt(views) || 0, 
+          likeCount: parseInt(likes) || 0 
+        })
+      })
+      const data = await res.json()
+      if (data.success) {
+        setStats({
+          engagementRate: data.data.engagementRate,
+          isHighPerformer: data.data.isHighPerformer
+        })
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div style={{ marginTop: '1.25rem', paddingTop: '1.25rem', borderTop: '1px dashed var(--border-subtle)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+        <div className="section-label" style={{ marginBottom: 0 }}>📈 Performa Klip</div>
+        {stats.isHighPerformer && <span className="badge badge-success animate-pulse">🌟 High Performer</span>}
+      </div>
+      
+      <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+        <div>
+          <label className="label" style={{ fontSize: '0.75rem' }}>Views</label>
+          <input 
+            type="number" 
+            className="input" 
+            value={views}
+            onChange={e => setViews(e.target.value)}
+            style={{ width: 100, height: 32, fontSize: '0.8125rem' }}
+          />
+        </div>
+        <div>
+          <label className="label" style={{ fontSize: '0.75rem' }}>Likes</label>
+          <input 
+            type="number" 
+            className="input" 
+            value={likes}
+            onChange={e => setLikes(e.target.value)}
+            style={{ width: 100, height: 32, fontSize: '0.8125rem' }}
+          />
+        </div>
+        <div>
+          <label className="label" style={{ fontSize: '0.75rem' }}>ER (%)</label>
+          <div className="mono" style={{ padding: '0 0.5rem', height: 32, display: 'flex', alignItems: 'center', background: 'var(--bg-elevated)', borderRadius: 'var(--radius-sm)', fontSize: '0.8125rem' }}>
+            {stats.engagementRate}%
+          </div>
+        </div>
+        <button 
+          className="btn btn-ghost btn-sm" 
+          onClick={handleUpdateAnalytics}
+          disabled={loading}
+          style={{ height: 32 }}
+        >
+          {loading ? <Loader2 size={14} className="animate-spin" /> : 'Update Stats'}
+        </button>
+      </div>
     </div>
   )
 }

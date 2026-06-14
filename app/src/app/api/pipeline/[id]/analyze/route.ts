@@ -100,12 +100,28 @@ export async function POST(
     // Jalankan analisis (async — respond 202 dulu, proses di background)
     const analyzeAsync = async () => {
       try {
+        // Ambil histori (Fase 3): Klip yang di-approve atau high performer
+        const historyClips = await db
+          .select({ title: clips.aiSuggestedTitle, userTitle: clips.userEditedTitle, snippet: clips.transcriptSnippet, isHighPerformer: clips.isHighPerformer })
+          .from(clips)
+          .where(eq(clips.humanApproved, true))
+          .limit(10) // Ambil 10 klip terbaik yang pernah di-approve
+
+        let historyContext = ''
+        if (historyClips.length > 0) {
+          historyContext = historyClips.map((c, i) => 
+            `Histori ${i + 1}${c.isHighPerformer ? ' [🌟 KINERJA SANGAT TINGGI]' : ''}: 
+- Judul: ${c.userTitle || c.title}
+- Transkrip: "${c.snippet}"`
+          ).join('\n\n')
+        }
+
         const result = await analyzeVideo(transcript, config, {
           keys: envKeys,
           rotation_strategy: 'round_robin',
           cooldown_seconds: 60,
           max_retries: envKeys.length,
-        })
+        }, historyContext)
 
         // Simpan strategy ke pipeline
         await db

@@ -62,26 +62,26 @@
 
 > **Definisi selesai:** User bisa track performa klip dan sistem belajar dari feedback.
 
-- [ ] **UI** Dashboard analytics per klip:
-  - [ ] Input manual view count / like count / engagement rate
-  - [ ] Grafik performa sederhana per pipeline
+- [x] **UI** Dashboard analytics per klip:
+  - [x] Input manual view count / like count / engagement rate
+  - [x] Grafik performa sederhana per pipeline
 
-- [ ] **Fitur** sistem flagging klip perform baik:
-  - [ ] Tandai klip dengan engagement tinggi
-  - [ ] Filter klip berdasarkan performa
+- [x] **Fitur** sistem flagging klip perform baik:
+  - [x] Tandai klip dengan engagement tinggi
+  - [x] Filter klip berdasarkan performa
 
-- [ ] **Fitur** AI learning dari history:
-  - [ ] Simpan pola klip yang di-approve vs reject per user
-  - [ ] Kirim context history ke prompt saat analisis berikutnya
+- [x] **Fitur** AI learning dari history:
+  - [x] Simpan pola klip yang di-approve vs reject per user
+  - [x] Kirim context history ke prompt saat analisis berikutnya
 
-- [ ] **Fitur** Preset konfigurasi per niche:
-  - [ ] UI simpan/load preset di Settings
-  - [ ] Preset bawaan untuk niche populer (motivation, finance, gaming)
+- [x] **Fitur** Preset konfigurasi per niche:
+  - [x] UI simpan/load preset di Settings
+  - [x] Preset bawaan untuk niche populer (motivation, finance, gaming)
 
-- [ ] **UI** Riwayat pipeline:
-  - [ ] Pagination di halaman dashboard
-  - [ ] Filter berdasarkan status & niche
-  - [ ] Search berdasarkan URL / judul
+- [x] **UI** Riwayat pipeline:
+  - [x] Pagination di halaman dashboard
+  - [x] Filter berdasarkan status & niche
+  - [x] Search berdasarkan URL / judul
 
 - [ ] Optimasi kecepatan analisis (caching transkrip, streaming response)
 - [ ] Update `CHANGELOG.md` saat selesai

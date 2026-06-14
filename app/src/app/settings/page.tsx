@@ -80,6 +80,28 @@ export default function SettingsPage() {
             <span style={{ fontWeight: 600 }}>⚙️ Settings</span>
           </div>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <select 
+              className="input" 
+              style={{ height: '32px', fontSize: '0.8125rem' }}
+              onChange={(e) => {
+                if (e.target.value === 'motivation') {
+                  setAnalysis({ ...DEFAULT_ANALYSIS, niche: 'motivation', min_clips: 5, virality_threshold: 80 })
+                  setRender({ ...DEFAULT_RENDER, caption_style: 'word_by_word', contrast: 15, caption_text_color: '#FFFF00' })
+                } else if (e.target.value === 'finance') {
+                  setAnalysis({ ...DEFAULT_ANALYSIS, niche: 'finance', thinking_depth: 'high', min_duration_seconds: 30 })
+                  setRender({ ...DEFAULT_RENDER, caption_bg_color: '#003300', caption_text_color: '#FFFFFF' })
+                } else if (e.target.value === 'gaming') {
+                  setAnalysis({ ...DEFAULT_ANALYSIS, niche: 'gaming', max_duration_seconds: 45, virality_threshold: 65 })
+                  setRender({ ...DEFAULT_RENDER, aspect_ratio: '16:9', caption_position: 'top' })
+                }
+                e.target.value = '' // reset select
+              }}
+            >
+              <option value="">Load Preset Niche...</option>
+              <option value="motivation">Motivation (Intense)</option>
+              <option value="finance">Finance (Deep)</option>
+              <option value="gaming">Gaming (Landscape)</option>
+            </select>
             <button onClick={() => { setAnalysis(DEFAULT_ANALYSIS); setRender(DEFAULT_RENDER) }} className="btn btn-ghost btn-sm">
               <RotateCcw size={13} /> Reset Default
             </button>

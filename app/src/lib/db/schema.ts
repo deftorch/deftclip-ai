@@ -65,6 +65,12 @@ export const clips = pgTable('clips', {
   renderStatus: text('render_status'), // 'pending' | 'rendering' | 'done' | 'error'
   outputFileUrl: text('output_file_url'),
   renderedAt: timestamp('rendered_at'),
+
+  // Analytics (Fase 3)
+  viewCount: integer('view_count').default(0),
+  likeCount: integer('like_count').default(0),
+  engagementRate: numeric('engagement_rate').default('0'),
+  isHighPerformer: boolean('is_high_performer').default(false),
 })
 
 /** UserConfig: konfigurasi yang disimpan user di UI Settings */

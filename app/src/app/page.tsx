@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { Scissors, Zap, Settings, ChevronRight, Play, Clock, CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Scissors, Zap, Settings, ChevronRight, Play, Clock, CheckCircle, AlertCircle, Loader2, Search, Filter } from 'lucide-react'
 
 interface Pipeline {
   id: string
@@ -19,6 +19,29 @@ export default function HomePage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [pipelines, setPipelines] = useState<Pipeline[]>([])
   const [error, setError] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [isLoadingHistory, setIsLoadingHistory] = useState(true)
+
+  useEffect(() => {
+    fetch('/api/pipelines')
+      .then(r => r.json())
+      .then(data => {
+        if (data.pipelines) {
+          setPipelines(data.pipelines)
+        }
+      })
+      .catch(console.error)
+      .finally(() => setIsLoadingHistory(false))
+  }, [])
+
+  const filteredPipelines = pipelines.filter(p => {
+    const matchSearch = (p.sourceTitle || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
+                        p.sourceUrl.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        p.id.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchStatus = statusFilter === 'all' || p.status === statusFilter
+    return matchSearch && matchStatus
+  })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -301,14 +324,48 @@ export default function HomePage() {
         {/* Pipeline List */}
         {pipelines.length > 0 && (
           <div style={{ maxWidth: 700, margin: '0 auto', animation: 'fade-in 0.4s ease both' }}>
-            <div className="section-label" style={{ marginBottom: '1rem' }}>
-              Pipeline Aktif ({pipelines.length})
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
+              <div className="section-label" style={{ marginBottom: 0 }}>
+                Riwayat Pipeline ({filteredPipelines.length})
+              </div>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <div style={{ position: 'relative' }}>
+                  <Search size={14} color="var(--text-muted)" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)' }} />
+                  <input 
+                    type="text" 
+                    className="input" 
+                    placeholder="Cari judul/URL..." 
+                    style={{ paddingLeft: '2rem', height: '32px', fontSize: '0.8125rem' }}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+                <select 
+                  className="input" 
+                  style={{ height: '32px', fontSize: '0.8125rem', padding: '0 2rem 0 0.5rem' }}
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                >
+                  <option value="all">Semua Status</option>
+                  <option value="done">Selesai</option>
+                  <option value="review">Review</option>
+                  <option value="rendering">Rendering</option>
+                  <option value="pending">Pending</option>
+                  <option value="error">Error</option>
+                </select>
+              </div>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              {pipelines.map((pipeline) => (
-                <PipelineRow key={pipeline.id} pipeline={pipeline} />
-              ))}
+              {isLoadingHistory ? (
+                <div style={{ padding: '2rem', textAlign: 'center' }}><Loader2 className="animate-spin text-muted mx-auto" /></div>
+              ) : filteredPipelines.length === 0 ? (
+                <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>Tidak ada data cocok.</div>
+              ) : (
+                filteredPipelines.map((pipeline) => (
+                  <PipelineRow key={pipeline.id} pipeline={pipeline} />
+                ))
+              )}
             </div>
           </div>
         )}

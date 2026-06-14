@@ -8,7 +8,7 @@ import type { AnalysisConfig } from '@/lib/schema/config.schema'
  * @param config - Konfigurasi analisis dari user
  * @returns Prompt string siap dikirim ke Gemini
  */
-export function buildAnalysisPrompt(config: AnalysisConfig): string {
+export function buildAnalysisPrompt(config: AnalysisConfig, historyContext?: string): string {
   const langInstruction =
     config.source_language === 'id'
       ? 'Konten dalam Bahasa Indonesia. Prioritaskan momen yang akan viral di audiens Indonesia.'
@@ -49,6 +49,12 @@ Pilih momen yang memiliki:
 3. Standalone — bisa dipahami tanpa konteks sebelumnya
 4. Quotable — mengandung kalimat yang bisa dijadikan caption
 5. Virality score >= ${config.virality_threshold}
+
+${historyContext ? `## HISTORI KESUKSESAN & FEEDBACK USER
+Perhatikan histori performa dan feedback klip sebelumnya untuk meningkatkan akurasi:
+${historyContext}
+Gunakan informasi di atas untuk menyesuaikan pilihan klip kali ini. Hindari pola yang sering di-reject.
+` : ''}
 
 ## FORMAT OUTPUT (JSON WAJIB)
 Kembalikan HANYA JSON valid berikut, tanpa teks tambahan:

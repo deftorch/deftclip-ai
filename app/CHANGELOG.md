@@ -186,9 +186,29 @@
 
 ---
 
-> 📋 **Item yang belum selesai** → lihat [`TODO.md`](./TODO.md)
+### 🎞️ FASE 2 — Video Render (FFmpeg.wasm)
+
+- **ADDED** `src/lib/render/ffmpeg-commands.ts` — Command builder untuk FFmpeg (Trim, Crop/Reframe 9:16/1:1, Color Grading eq filter, Caption Burn-in dengan font formatting)
+- **ADDED** `src/test/unit/render/ffmpeg-commands.test.ts` — TDD Unit Test (8 test)
+- **ADDED** `src/lib/render/ffmpeg-browser.ts` — Eksekusi WebAssembly FFmpeg di browser 1-pass execution (superfast) tanpa backend load ($0 cost)
+- **ADDED** `src/app/api/clips/[id]/render-status/route.ts` — PATCH Endpoint untuk mengupdate status render klip (pending/rendering/done/error)
+- **ADDED** `src/app/pipeline/[id]/render/page.tsx` — UI Rendering di browser dengan File picker lokal (melewati batasan CORS), progress bar realtime, preview render output, dan tombol download MP4.
 
 ---
+
+### 📈 FASE 3 — Analytics & Feedback Loop
+
+- **ADDED** Analytics fields di DB (`viewCount`, `likeCount`, `engagementRate`, `isHighPerformer`) via Drizzle schema & migrations.
+- **ADDED** `src/app/api/clips/[id]/analytics/route.ts` — PATCH API untuk input manual view/likes, otomatis menghitung ER & flag High Performer.
+- **ADDED** Input manual Analytics di `src/app/pipeline/[id]/page.tsx` untuk klip dengan status 'done'.
+- **ADDED** `src/app/api/pipelines/route.ts` — GET Endpoint untuk pagination pipeline list.
+- **CHANGED** `src/app/page.tsx` (Dashboard) — Menampilkan riwayat/history semua pipeline, fitur Search (judul/url/ID), & Filter status.
+- **CHANGED** `src/app/settings/page.tsx` — Fitur Preset Niche Konfigurasi cepat (Motivation, Finance, Gaming).
+- **CHANGED** `src/lib/ai/prompt-builder.ts` & `src/lib/ai/analyzer.ts` — AI Learning Loop: `analyzeVideo` sekarang menarik top 10 approved & high performing clips dari DB pengguna dan menyuntikkannya ke Prompt sebagai `historyContext` untuk meningkatkan akurasi sistem.
+
+---
+
+> 📋 **Item yang belum selesai** → lihat [`TODO.md`](./TODO.md)
 
 
 ## [2026-06-14] v0.1.0-alpha — Blueprint & Dokumentasi
